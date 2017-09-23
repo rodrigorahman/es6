@@ -538,3 +538,486 @@ apagar da sua mente a maneira tradicional de se escrever uma função, fique ate
 > funções arrow são apenas expressões
 
 > não existe declaração de função arrow
+
+
+## Contexto This in Arrow Functions
+
+```javascript
+// constructor
+function IceCream() {
+  this.scoops = 0;
+}
+
+// adds scoop to ice cream
+IceCream.prototype.addScoop = function() {
+  setTimeout(() => { // an arrow function is passed to setTimeout
+    this.scoops++;
+    console.log('scoop added!');
+  }, 0.5);
+};
+
+const dessert = new IceCream();
+dessert.addScoop();
+``` 
+
+Como as funções arrow herdam this do escopo onde estão contidas, esse código funciona!
+
+```javascript
+console.log(dessert.scoops);
+```
+
+```javascript
+Imprime:
+1
+
+```
+
+Sim, isso não funciona pelo mesmo motivo - as funções arrow herdam o valor de this do contexto onde estão inseridas. Fora do escopo do método addScoop(), o valor de this é o objeto global; portanto, se addScoop() é uma função arrow, o valor de this em seu contexto interno é o objeto global.
+
+
+# Parâmetros de função default
+
+Parâmetros de função default são muito fáceis de ler, já que ficam na lista de parâmetros da função:
+
+```javascript
+function greet(name = 'Student', greeting = 'Welcome') {
+  return `${greeting} ${name}!`;
+}
+
+greet(); // Welcome Student!
+greet('James'); // Welcome James!
+greet('Richard', 'Howdy'); // Howdy Richard!
+
+```
+
+
+>Saídas:  
+>Welcome Student!  
+>Welcome James!  
+>Howdy Richard!  
+
+
+# Default Array destructuring
+
+É possível combinar de parâmetros default a destructuring para criar funções muito poderosas!
+
+```javascript
+function createGrid([width = 5, height = 5]) {
+  return `Generates a ${width} x ${height} grid`;
+}
+
+createGrid([]); // Generates a 5 x 5 grid
+createGrid([2]); // Generates a 2 x 5 grid
+createGrid([2, 3]); // Generates a 2 x 3 grid
+createGrid([undefined, 3]); // Generates a 5 x 3 grid
+```
+
+>**Retornos:**  
+>Generates a 5 x 5 grid   
+>Generates a 2 x 5 grid   
+>Generates a 2 x 3 grid  
+>Generates a 5 x 3 grid  
+
+
+`createGrid(); // throws an error`
+
+
+>**Uncaught TypeError:** Cannot read property 'Symbol(Symbol.iterator)' of undefined
+
+Isso gera um erro porque createGrid() espera uma array como parâmetro, para que possa realizar o processo de destructuring. Uma vez que a função foi chamda sem passar uma array, ocorre um erro, mas podemos utilizar parâmetros de função default a fim de resolver o problema!
+
+```javascript
+function createGrid([width = 5, height = 5] = []) {
+  return `Generating a grid of ${width} by ${height}`;
+}
+```
+
+Repare no novo = [] na lista de parâmetros da função. Se createGrid() for chamada sem nenhum argumento, o valor default será utilizado, ou seja, uma array vazia será passada como parâmetro. Caso o método receba a array vazia, não há valores para fazer o destructuring e atribuir às variáveis width e height, então, seus valores padrão serão aplicados. Assim, adicionando o = [] como o default para o parâmetro inteiro, o código a seguir funcionará:
+
+`createGrid(); // Generates a 5 x 5 grid`
+
+>**Retorno:** Generates a 5 x 5 grid
+
+```javascript
+/*
+ * Programming Quiz: Using Default Function Parameters (2-2)
+ */
+function buildHouse({floors = 1, color = 'red', walls = 'brick'} = {}) {
+    
+    return `Your house has ${floors} floor(s) with ${color} ${walls} walls.`;
+}
+
+/* tests*/
+console.log(buildHouse()); // Your house has 1 floor(s) with red brick walls.
+console.log(buildHouse({})); // Your house has 1 floor(s) with red brick walls.
+console.log(buildHouse({floors: 3, color: 'yellow'})); // Your house has 3 floor(s) with yellow brick walls.
+```
+
+# Classes no ES6
+
+Este é um exemplo de como a mesma classe Plane seria escrita com a nova sintaxe de class:
+
+```javascript
+class Plane {
+  constructor(numEngines) {
+    this.numEngines = numEngines;
+    this.enginesActive = false;
+  }
+
+  startEngines() {
+    console.log('starting engines…');
+    this.enginesActive = true;
+  }
+}
+```
+
+
+# Como criar um map
+
+Para criar um map, basta digitar:
+
+```javascript
+const employees = new Map();
+console.log(employees);
+
+```
+
+>Map {}
+
+Isso cria um map employee, sem nenhum par chave-valor.
+
+### Modificando maps
+
+Diferentemente dos sets, você não pode criar maps a partir de uma lista de valores; em vez disso, você adiciona pares de chave-valor utilizando o método .set().
+
+```javascript
+const employees = new Map();
+
+employees.set('james.parkes@udacity.com', { 
+    firstName: 'James',
+    lastName: 'Parkes',
+    role: 'Content Developer' 
+});
+employees.set('julia@udacity.com', {
+    firstName: 'Julia',
+    lastName: 'Van Cleve',
+    role: 'Content Developer'
+});
+employees.set('richard@udacity.com', {
+    firstName: 'Richard',
+    lastName: 'Kalehoff',
+    role: 'Content Developer'
+});
+
+console.log(employees);
+```
+
+
+# Trabalhando com maps
+
+Depois de construir seu map, você pode utilizar o método .has() para checar se um par chave-valor existe, passando a chave como parâmetro.
+
+```javascript
+const members = new Map();
+
+members.set('Evelyn', 75.68);
+members.set('Liam', 20.16);
+members.set('Sophia', 0);
+members.set('Marcus', 10.25);
+
+console.log(members.has('Xavier'));
+console.log(members.has('Marcus'));
+
+```
+
+>false  
+>true
+
+E você também pode recuperar valores contidos em um map, utilizando o método .get() e passando a chave como parâmetro.
+
+`console.log(members.get('Evelyn'));`
+
+>75.68
+
+
+### Usando um loop 'forEach'
+
+Sua última opção para percorrer um map é com o método .forEach().
+
+`members.forEach((value, key) => console.log(value, key));`
+
+> 'Evelyn' 75.68  
+> 'Liam' 20.16  
+> 'Sophia' 0  
+> 'Marcus' 10.25  
+
+# Promises
+
+
+ex:
+
+```javascript
+new Promise(function (resolve, reject) {
+    window.setTimeout(function createSundae(flavor = 'chocolate') {
+        const sundae = {};
+        // request ice cream
+        // get cone
+        // warm up ice cream scoop
+        // scoop generous portion into cone!
+        if ( /* iceCreamConeIsEmpty(flavor) */ ) {
+            reject(`Sorry, we're out of that flavor :-(`);
+        }
+        resolve(sundae);
+    }, Math.random() * 2000);
+});
+
+```
+
+
+Esse objeto possui um método .then(), que pode ser utilizado para nos informar se a requisição realizada na promise foi concluída com sucesso ou falhou. O método .then() recebe duas funções:
+
+* uma função para executar caso a requisição tenha sido concluída com sucesso
+* uma função para executar caso a requisição tenha falhado
+
+```javascript
+mySundae.then(function(sundae) {
+    console.log(`Time to eat my delicious ${sundae}`);
+}, function(msg) {
+    console.log(msg);
+    self.goCry(); // not a real method
+});
+
+```
+
+
+# Proxy
+
+### Armadilha get
+
+A armadilha get é utilizada para "interceptar" chamadas a propriedades:
+
+```javascript
+const richard = {status: 'looking for work'};
+const handler = {
+    get(target, propName) {
+        console.log(target); // the `richard` object, not `handler` and not `agent`
+        console.log(propName); // the name of the property the proxy (`agent` in this case) is checking
+    }
+};
+const agent = new Proxy(richard, handler);
+agent.status; // logs out the richard object (not the agent object!) and the name of the property being accessed (`status`)
+```
+
+### Acessando o objeto-alvo de dentro do proxy
+
+Se quiséssemos acessar de fato a propriedade, nós teriamos que retornar o valor dela por meio do objeto-alvo (target):
+
+```javascript
+const richard = {status: 'looking for work'};
+const handler = {
+    get(target, propName) {
+        console.log(target);
+        console.log(propName);
+        return target[propName];
+    }
+};
+const agent = new Proxy(richard, handler);
+agent.status; // (1)logs the richard object, (2)logs the property being accessed, (3)returns the text in richard.status
+```
+
+### Obtendo a informação de return do proxy diretamente
+
+Como alternativa, podemos utilizar o proxy para fornecer feedback imediato:
+
+```javascript
+const richard = {status: 'looking for work'};
+const handler = {
+    get(target, propName) {
+        return `He's following many leads, so you should offer a contract as soon as possible!`;
+    }
+};
+const agent = new Proxy(richard, handler);
+agent.status; // returns the text `He's following many leads, so you should offer a contract as soon as possible!`
+```
+
+
+### **A armadilha set** é utilizada para interceptar o código que modificará uma propriedade. Ela recebe:
+
+* o objeto-alvo do proxy
+* a propriedade que está sendo alterada
+* o novo valor para o proxy
+
+```javascript
+const richard = {status: 'looking for work'};
+const handler = {
+    set(target, propName, value) {
+        if (propName === 'payRate') { // if the pay is being set, take 15% as commission
+            value = value * 0.85;
+        }
+        target[propName] = value;
+    }
+};
+const agent = new Proxy(richard, handler);
+agent.payRate = 1000; // set the actor's pay to $1,000
+agent.payRate; // $850 the actor's actual pay
+
+```
+
+No código acima, observe que a armadilha set checa se a propriedade payRate está sendo alterada. Se estiver, então o proxy (variável agent) reduz o valor em quinze por cento, caso a variável payRate tenha recebido algum valor pelo proxy. No fim do trecho de código, a propriedade payRate possui o valor 850.
+
+
+### Outras armadilhas
+
+Até aqui, nós vimos as armadilhas get e set (que provavelmente são as mais utilizadas), mas existem um total de 13 armadilhas diferentes que podem ser utilizadas no handler de um proxy!
+
+>get - permite que o proxy controle chamadas para acesso à propriedades  
+>set - permite que o proxy controle alterações de valor da propriedade  
+>apply - permite que o proxy controle quando o objeto-alvo é invocado (o objeto-alvo é uma função)  
+>has - permite que o proxy controle o uso do operador in  
+>deleteProperty - permite que o proxy controle quando uma propriedade é deletada  
+>ownKeys - permite que o proxy controle quando todas as chaves são requisitadas  
+>construct - permite que o proxy controle quando o proxy é utilizado com a palavra-chave new, como um construtor  
+>defineProperty - permite que o proxy controle quando defineProperty é utilizado para criar uma nova propriedade no objeto  
+>getOwnPropertyDescriptor - permite que o proxy controle a recuperação da descrição da propriedade  
+>preventExtenions - permite que o proxy controle chamadas ao Object.preventExtensions() no objeto proxy  
+>isExtensible - permite que o proxy controle chamadas ao Object.isExtensible no objeto proxy  
+>getPrototypeOf - permite que o proxy controle chamadas ao Object.getPrototypeOf no objeto proxy  
+>setPrototypeOf - permite que o proxy controle chamadas ao Object.setPrototypeOf no objeto proxy  
+
+
+
+# Generator Functions! 
+
+Se quisermos ter a capacidade de pausar uma função no meio de sua execução, precisaremos de um novo tipo de função presente no ES6 - generator functions! Vamos ver como uma funciona:
+
+```javascript
+function* getEmployee() {
+    console.log('the function has started');
+
+    const names = ['Amanda', 'Diego', 'Farrin', 'James', 'Kagure', 'Kavita', 'Orit', 'Richard'];
+
+    for (const name of names) {
+        console.log( name );
+    }
+
+    console.log('the function has ended');
+}
+```
+
+### Executando a função:
+
+```javascript
+const generatorIterator = getEmployee();
+generatorIterator.next();
+```
+
+### A palavra-chave 'yield'
+
+A palavra-chave yield foi introduzida ao ES6. Ela pode ser utilizada no interior de generator functions e é o que causa a pausa do generator. Vamos adicionar o yield ao nosso generator e fazer uma tentativa:
+
+```javascript
+function* getEmployee() {
+    console.log('the function has started');
+
+    const names = ['Amanda', 'Diego', 'Farrin', 'James', 'Kagure', 'Kavita', 'Orit', 'Richard'];
+
+    for (const name of names) {
+        console.log(name);
+        yield;
+    }
+
+    console.log('the function has ended');
+}
+
+```
+
+Observe que, agora, há uma palavra yield no interior do loop for...of. Se nós executarmos o generator (o que produz um iterator) e chamarmos a função **.next()**, receberemos o seguinte output:
+
+```javascript
+const generatorIterator = getEmployee();
+generatorIterator.next();
+```
+
+
+>Logará no console:  
+>the function has started  
+>Amanda  
+>A execução da função pausou! Mas, para ter certeza, vamos checar a próxima iteração:  
+
+```javascript
+generatorIterator.next();
+```
+
+>Logorá no console:  
+>Diego
+
+Então, a função é retomada exatamente de onde parou, recuperando o próximo item da array (Diego) na segunda chamada do método .next() e pausando a função novamente.
+
+Agora que a funcionalidade de pausa está funcionando, o que aconteceria se pudéssemos mandar informações para o mundo "externo" de dentro da função generator? Isso é possível com yield.
+
+Usando o yield para enviar dados ao mundo externo 
+
+Em vez de logar no console os nomes e pausar a função, vamos utilizar o "return" para devolver o nome na array e pausar.
+
+
+```javascript
+function* getEmployee() {
+    console.log('the function has started');
+
+    const names = ['Amanda', 'Diego', 'Farrin', 'James', 'Kagure', 'Kavita', 'Orit', 'Richard'];
+
+    for (const name of names) {
+        yield name;
+    }
+
+    console.log('the function has ended');
+}
+```
+
+Observe que, agora, em vez de executar console.log(name);, fazemos yield name;. Com essa mudança, ao executar o generator, o nome será devolvido para a função e a execução pausará. Vejamos esse comportamento em ação:
+
+
+```javascript
+const generatorIterator = getEmployee();
+let result = generatorIterator.next();
+result.value // is "Amanda"
+
+generatorIterator.next().value // is "Diego"
+generatorIterator.next().value // is "Farrin"
+```
+
+
+
+# Navegadores 
+
+Como saber quais são as funcionalidades suportadas pelos navegadores?
+Com novas especificações na linguagem saindo todos os anos e navegadores sendo atualizados logo em seguida, é um desafio saber qual navegador tem suporte para qual funcionalidade da linguagem. Cada fabricante de navegadores (exceto o Safari) possui um site onde é possível acompanhar seu estágio de desenvolvimento. Acompanhe as atualizações de cada navegador:  
+
+Google Chrome - https://www.chromestatus.com/features#ES6  
+Microsoft Edge - https://developer.microsoft.com/en-us/microsoft-edge/platform/status/?q=ES6  
+Mozilla Firefox - https://platform-status.mozilla.org/  
+OBSERVAÇÃO: o Safari não possui uma página de status, porém, por debaixo dos panos, ele utiliza um mecanismo open source de navegação, o Webkit. O status de desenvolvimento do Webkit e suas funcionalidade podem ser encontrados aqui.  
+Isso pode ser muita informação para acompanhar. Se você preferir checar uma análise mais completa de todas as funcionalidades e compatibilidades de navegadores com as features do JavaScript, dê uma olhada na Tabela de compatibilidade ECMAScript, contruída por @kangax:  
+
+http://kangax.github.io/compat-table/es6/
+
+
+# Polyfills
+
+Lista Completa: 
+
+https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-Browser-Polyfills
+
+
+
+# Babel
+
+O transpiler JavaScript mais popular é chamado Babel.
+
+O nome original do Babel era um pouco mais descritivo - 6to5. Ele tinha esse nome porque sua proposta original era converter código ES6 para ES5, mas, agora, o Babel faz muito mais. Ele converterá ES6 para ES5, JSX para JavaScript e Flow para JavaScript.
+
+Antes de olharmos o transpiling de código em nosso computador, vamos testar rapidamente o transpiling de código ES6 para ES5 diretamente no site do Babel. Vá até o Babel's REPL e cole o código a seguir no seção da esquerda
+
+
+
+
